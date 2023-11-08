@@ -656,7 +656,7 @@ class Vgg19(torch.nn.Module):
         return out
     
 class VGGLoss(nn.Module):
-    def __init__(self, gpu_ids):
+    def __init__(self):
         super(VGGLoss, self).__init__()
         self.vgg = Vgg19().cuda()
         self.criterion = nn.L1Loss()
@@ -670,6 +670,7 @@ class VGGLoss(nn.Module):
                 self.criterion(x_vgg[i], y_vgg[i].detach())
         return loss
 
+from torchvision import models
 class Vgg19(torch.nn.Module):
     """
     A modified VGG19 network for feature extraction.
