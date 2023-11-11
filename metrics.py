@@ -94,4 +94,16 @@ if __name__ == "__main__":
     for column in columns[2:]:
         print(column, dataframe[column].mean(), dataframe[column].std())
 
-    # main()
+    # save
+    dataframe.to_csv(os.path.join(outputDir, 'metrics.csv'), index=False)
+
+    # save mean and std in seperate file 
+    mean = []
+    std = []
+    for column in columns[2:]:
+        mean.append(dataframe[column].mean())
+        std.append(dataframe[column].std())
+    
+    # save mean and std in seperate file with original columns as rows names
+    dataframe = pd.DataFrame([mean, std], columns=columns[2:], index=['mean', 'std'])
+    dataframe.to_csv(os.path.join(outputDir, 'metrics_mean_std.csv'))
