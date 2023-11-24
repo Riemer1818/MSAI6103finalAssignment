@@ -44,3 +44,8 @@ test/data/legacy_serialized.pt
 
 #Ignore Wandb
 wandb/
+
+error* 
+output* 
+datasets/*
+checkpoints/*
