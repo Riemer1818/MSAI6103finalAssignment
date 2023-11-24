@@ -632,6 +632,21 @@ class ResNetLoss(nn.Module):
                 self.criterion(x_ResNet[i], y_ResNet[i].detach())
         return loss
 
+class MobileNetLoss(nn.Module):
+    def __init__(self):
+        super(MobileNetLoss, self).__init__()
+        self.MobileNetV3 = MobileNetV3().cuda()
+        self.criterion = nn.L1Loss()
+        self.weights = [1.0/32, 1.0/16, 1.0/8, 1.0/4, 1.0] # how did they get these values?
+
+    def forward(self, x, y):
+        x_MobileNetV3, y_MobileNetV3 = self.MobileNetV3(x), self.MobileNetV3(y)
+        loss = 0
+        for i in range(len(x_MobileNetV3)):
+            loss += self.weights[i] * \
+                self.criterion(x_MobileNetV3[i], y_MobileNetV3[i].detach())
+        return loss
+
 class ResNet(torch.nn.Module):
     """
     A modified ResNet network for feature extraction.
@@ -691,7 +706,6 @@ class VGGLoss(nn.Module):
                 self.criterion(x_vgg[i], y_vgg[i].detach())
         return loss
 
-
 class Vgg19(torch.nn.Module):
     """
     A modified VGG19 network for feature extraction.
@@ -729,4 +743,40 @@ class Vgg19(torch.nn.Module):
         h_relu4 = self.slice4(h_relu3)
         h_relu5 = self.slice5(h_relu4)
         out = [h_relu1, h_relu2, h_relu3, h_relu4, h_relu5]
+        return out
+
+
+class MobileNetV3(torch.nn.Module):
+    """
+    A modified MobileNetV3 network for feature extraction.
+    
+    args:
+        requires_grad (bool): Whether to require gradients for the network parameters. Default: False.
+    """
+
+    def __init__(self):
+        super(MobileNetV3, self).__init__()
+        mobilenetv3_pretrained = models.mobilenet_v3_small(pretrained=True)
+        self.slice1 = torch.nn.Sequential()
+        self.slice2 = torch.nn.Sequential()
+        self.slice3 = torch.nn.Sequential()
+        self.slice4 = torch.nn.Sequential()
+        self.slice5 = torch.nn.Sequential()
+
+        # Identify layers for each slice based on MobileNetV3 architecture
+        for name, module in mobilenetv3_pretrained.named_children():
+            if name == 'features':
+                self.slice1.add_module(name, module[0:3])
+                self.slice2.add_module(name, module[3:5])
+                self.slice3.add_module(name, module[5:11])
+                self.slice4.add_module(name, module[11:15])
+                self.slice5.add_module(name, module[15:18])
+    
+    def forward(self, x):
+        x1 = self.slice1(x)
+        x2 = self.slice2(x1)
+        x3 = self.slice3(x2)
+        x4 = self.slice4(x3)
+        x5 = self.slice5(x4)
+        out = [x1, x2, x3, x4, x5]
         return out

@@ -12,4 +12,5 @@
 module load anaconda3/23.5.2
 eval "$(conda shell.bash hook)"
 conda activate pytorch-CycleGAN-and-pix2pix
-python train.py --dataroot ./datasets/facades --name facades_pix2pix_ResNet --model pix2pix --direction BtoA --display_id -1
+python train.py --dataroot ./datasets/facades --name facades_pix2pix_L1 --model pix2pix --direction BtoA --display_id -1 --loss l1
+
