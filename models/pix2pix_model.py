@@ -113,12 +113,15 @@ class Pix2PixModel(BaseModel):
 
 
         self.loss_G_L1 = 0
-        self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
+        # self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
         
         #TODO: bugfix and implement others. like VGG16, ResNet etc. 
         self.VGGloss = 0
-        self.VGGloss = self.criterionVGG(self.fake_B, self.real_B) * self.opt.lambda_VGG | self.opt.lambda_feat
+        # self.VGGloss = self.criterionVGG(self.fake_B, self.real_B) * self.opt.lambda_VGG | self.opt.lambda_feat
 
+        self.ResNetloss = 0
+        self.ResNetloss = self.criterionResnet(self.fake_B, self.real_B) * self.opt.lambda_Resnet | self.opt.lambda_feat
+        
         # combine loss and calculate gradients
         self.loss_G = self.loss_G_GAN + self.loss_G_L1 + self.VGGloss + self.ResNetloss
         self.loss_G.backward()
