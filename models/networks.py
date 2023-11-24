@@ -617,7 +617,7 @@ class PixelDiscriminator(nn.Module):
         return self.net(input)
 
 class ResNetLoss(nn.Module):
-    def __init__(self, gpu_ids):
+    def __init__(self):
         super(ResNetLoss, self).__init__()
         self.Resnet = ResNet().cuda()
         self.criterion = nn.L1Loss()
@@ -635,32 +635,45 @@ class ResNetLoss(nn.Module):
 class ResNet(torch.nn.Module):
     """
     A modified ResNet network for feature extraction.
-    
+
     Args:
         requires_grad (bool): Whether to require gradients for the network parameters. Default: False.
     """
 
-    def __init__(self,  required_grad=False):
+    def __init__(self, required_grad=False):
         super(ResNet, self).__init__()
-        resnet_pretrained_features = models.resnet18(pretrained=True).features
+        resnet_pretrained = models.resnet18(pretrained=True)
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
         self.slice3 = torch.nn.Sequential()
         self.slice4 = torch.nn.Sequential()
         self.slice5 = torch.nn.Sequential()
-        for x in range(3):
-            self.slice1.add_module(str(x), resnet_pretrained_features[x])
-        for x in range(3, 5):
-            self.slice2.add_module(str(x), resnet_pretrained_features[x])
-        for x in range(5, 6):
-            self.slice3.add_module(str(x), resnet_pretrained_features[x])
-        for x in range(6, 7):
-            self.slice4.add_module(str(x), resnet_pretrained_features[x])
-        for x in range(7, 8):
-            self.slice5.add_module(str(x), resnet_pretrained_features[x])
+
+        # Identify layers for each slice based on ResNet18 architecture
+        for name, module in resnet_pretrained.named_children():
+            if name == 'conv1':
+                self.slice1.add_module(name, module)
+            elif name == 'layer1':
+                self.slice2.add_module(name, module)
+            elif name == 'layer2':
+                self.slice3.add_module(name, module)
+            elif name == 'layer3':
+                self.slice4.add_module(name, module)
+            elif name == 'layer4':
+                self.slice5.add_module(name, module)
+
         if not required_grad:
             for param in self.parameters():
                 param.requires_grad = False
+                
+    def forward(self, x):
+        x1 = self.slice1(x)  # This could be the output of the initial convolutional layer
+        x2 = self.slice2(x1)  # This could be the output of layer1
+        x3 = self.slice3(x2)  # This could be the output of layer2
+        x4 = self.slice4(x3)  # This could be the output of layer3
+        x5 = self.slice5(x4)  # This could be the output of layer4
+        out = [x1, x2, x3, x4, x5]
+        return out
 
 
 class VGGLoss(nn.Module):

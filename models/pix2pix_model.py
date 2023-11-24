@@ -66,6 +66,8 @@ class Pix2PixModel(BaseModel):
             self.criterionL1 = torch.nn.L1Loss()
 
             self.criterionVGG = networks.VGGLoss() #TODO: 
+            self.criterionResnet = networks.ResNetLoss() #TODO:
+
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -118,9 +120,13 @@ class Pix2PixModel(BaseModel):
         #TODO: bugfix and implement others. like VGG16, ResNet etc. 
         self.VGGloss = 0
         # self.VGGloss = self.criterionVGG(self.fake_B, self.real_B) * self.opt.lambda_VGG | self.opt.lambda_feat
+        # self.VGGloss = self.criterionVGG(self.fake_B, self.real_B) * self.opt.lambda_L1
+        
 
-        self.ResNetloss = 0
-        self.ResNetloss = self.criterionResnet(self.fake_B, self.real_B) * self.opt.lambda_Resnet | self.opt.lambda_feat
+        # self.ResNetloss = 0
+        # self.ResNetloss = self.criterionResnet(self.fake_B, self.real_B) * self.opt.lambda_Resnet | self.opt.lambda_feat
+        self.ResNetloss = self.criterionResnet(self.fake_B, self.real_B) * self.opt.lambda_L1
+
         
         # combine loss and calculate gradients
         self.loss_G = self.loss_G_GAN + self.loss_G_L1 + self.VGGloss + self.ResNetloss
