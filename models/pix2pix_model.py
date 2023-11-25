@@ -67,7 +67,7 @@ class Pix2PixModel(BaseModel):
 
             self.criterionVGG = networks.VGGLoss() #TODO: 
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
-            self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr_G, betas=(opt.beta1, 0.999),weight_decay=0.0005)
+            self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr_G, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr_D, betas=(opt.beta1, 0.999),weight_decay=0.0005)
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
