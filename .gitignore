@@ -49,3 +49,4 @@ error*
 output* 
 datasets/*
 checkpoints/*
+*.zip
