@@ -31,9 +31,9 @@ if __name__ == "__main__":
     # ask for system arguments
 
     # resultsDir = sys.argv[1] # path to the results directory
-    resultsDir = "./results/facades_pix2pix/test_latest/images/"
-    # outputDir = sys.argv[2] # path to the output directory
-    outputDir = "./results/facades_pix2pix/test_latest/"
+    # resultsDir = "./results/facades_pix2pix/test_latest/images/"
+    outputDir = sys.argv[2] # path to the output directory
+    # outputDir = "./results/facades_pix2pix/test_latest/"
 
     pattern1 = re.compile(r'(\d+_(fake_B)\.png)')
     pattern2 = re.compile(r'(\d+_(real_B)\.png)')
