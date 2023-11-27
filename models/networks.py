@@ -3,6 +3,7 @@ from torchvision import models
 import torch.nn as nn
 from torch.nn import init
 import functools
+import torchvision.models as models
 from torch.optim import lr_scheduler
 
 
@@ -200,6 +201,8 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
         net = NLayerDiscriminator(input_nc, ndf, n_layers_D, norm_layer=norm_layer)
     elif netD == 'pixel':     # classify if each pixel is real or fake
         net = PixelDiscriminator(input_nc, ndf, norm_layer=norm_layer)
+    elif netD == "wgan":
+        net = WGANCritic(input_nc, ndf, n_layers=3)  
     else:
         raise NotImplementedError('Discriminator model name [%s] is not recognized' % netD)
     return init_net(net, init_type, init_gain, gpu_ids)
@@ -616,6 +619,54 @@ class PixelDiscriminator(nn.Module):
         """Standard forward."""
         return self.net(input)
 
+class WGANCritic(nn.Module):
+    """Defines a WGAN critic"""
+
+    def __init__(self, input_nc, ndf=64, n_layers=3):
+        """Construct a WGAN critic
+
+        Parameters:
+            input_nc (int)  -- the number of channels in input images
+            ndf (int)       -- the number of filters in the last conv layer
+            n_layers (int)  -- the number of conv layers in the critic
+        """
+        super(WGANCritic, self).__init__() 
+
+        kw = 4
+        padw = 1
+        self.conv1 = nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw)
+        self.relu = nn.LeakyReLU(0.2, True)
+
+        nf_mult = 1
+        nf_mult_prev = 1
+        layers = []
+
+        for n in range(1, n_layers):
+            nf_mult_prev = nf_mult
+            nf_mult = min(2 ** n, 8)
+            layers += [
+                nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=2, padding=padw),
+                nn.LeakyReLU(0.2, True)
+            ]
+
+        nf_mult_prev = nf_mult
+        nf_mult = min(2 ** n_layers, 8)
+
+        layers += [
+            nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=1, padding=padw),
+            nn.LeakyReLU(0.2, True)
+        ]
+
+        layers += [nn.Conv2d(ndf * nf_mult, 256, kernel_size=kw, stride=1, padding=padw)]  # Change the number of output channels to 256
+
+
+        self.model = nn.Sequential(self.conv1, self.relu, *layers)
+
+
+    def forward(self, input): 
+        """Standard forward."""
+        return self.model(input) 
+
 class ResNetLoss(nn.Module):
     def __init__(self):
         super(ResNetLoss, self).__init__()
@@ -690,7 +741,6 @@ class ResNet(torch.nn.Module):
         out = [x1, x2, x3, x4, x5]
         return out
 
-
 class VGGLoss(nn.Module):
     def __init__(self):
         super(VGGLoss, self).__init__()
@@ -744,7 +794,6 @@ class Vgg19(torch.nn.Module):
         h_relu5 = self.slice5(h_relu4)
         out = [h_relu1, h_relu2, h_relu3, h_relu4, h_relu5]
         return out
-
 
 class MobileNetV3(torch.nn.Module):
     """

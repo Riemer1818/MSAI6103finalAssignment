@@ -57,6 +57,7 @@ class Pix2PixModel(BaseModel):
                                       not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
 
         if self.isTrain:  # define a discriminator; conditional GANs need to take both input and output images; Therefore, #channels for D is input_nc + output_nc
+            self.criterionVGG = networks.VGGLoss() 
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD,
                                           opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
 
@@ -69,7 +70,7 @@ class Pix2PixModel(BaseModel):
             self.criterionVGG = networks.VGGLoss() #TODO: 
             self.criterionResnet = networks.ResNetLoss() #TODO:
             self.criterionMobileNet = networks.MobileNetLoss() #TODO:
-
+            
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -135,7 +136,7 @@ class Pix2PixModel(BaseModel):
         else:
             raise NotImplementedError('Loss type [%s] is not implemented!' % self.opt.loss)
 
-        
+
         # combine loss and calculate gradients
         self.loss_G = self.loss_G_GAN + self.loss_G_L1 
         self.loss_G.backward()

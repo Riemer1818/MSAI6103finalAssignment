@@ -12,4 +12,4 @@
 module load anaconda3/23.5.2
 eval "$(conda shell.bash hook)"
 conda activate pytorch-CycleGAN-and-pix2pix
-python test.py --dataroot ./datasets/cityscapes --name cityscapes_pix2pix_WGAN --model pix2pix --direction BtoA
+python train.py --dataroot ./datasets/cityscapes --name facades_pix2pix_WGAN --model pix2pix --direction BtoA --display_id -1 
