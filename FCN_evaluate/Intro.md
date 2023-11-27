@@ -1,4 +1,4 @@
-This is the modified one convert 'caffe version' to 'pytorch version', like a reimplementation.
+This is the modified one convert 'caffe version' to 'pytorch version', like a reimplementation. But it requires a pre-trained .pth file and other components are already done.
 
 1.use FCN8s_cityscapes.pth as the pre-trained model, but there is no pre-trained FCN8s model on cityscapes online and due to time limitation, we do not train the FCN8s on the cityscapes.
 
