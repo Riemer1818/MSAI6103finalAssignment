@@ -20,6 +20,6 @@ def copy_and_rename_files(source_dir, destination_dir):
             shutil.copy(src_file_path, dest_file_path)
 
 # Example usage
-source_directory = '/home/msai/lidu0002/MSAI6103finalAssignment/results_try/cityscapes_pix2pix_VGG/test_latest/images'
-destination_directory = '/home/msai/lidu0002/MSAI6103finalAssignment/results_try/datas_VGG'
+source_directory = '/'
+destination_directory = '/'
 copy_and_rename_files(source_directory, destination_directory)
