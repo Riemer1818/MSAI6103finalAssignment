@@ -3,14 +3,17 @@ import numpy as np
 import torch
 
 
-def get_out_scoremap(net):
+def get_out_scoremap(output):
     return output.argmax(dim=1).squeeze(0).cpu().numpy().astype(np.uint8)
 
 
-def segrun(net, in_):
-    in_tensor = torch.from_numpy(in_).unsqueeze(0).to(device)
+def segrun(net, in_, device):
+    if isinstance(in_, np.ndarray):
+        in_tensor = torch.from_numpy(in_).unsqueeze(0).to(device)
+    else:
+        in_tensor = in_.unsqueeze(0).to(device)  # Assuming in_ is already a Tensor
     with torch.no_grad():
-        output = model(in_tensor)
+        output = net(in_tensor)
     # Retrieve the output score map
     return get_out_scoremap(output)
 

@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 
+
 class cityscapes:
     def __init__(self, data_path):
         self.dir = data_path
@@ -45,7 +46,7 @@ class cityscapes:
         Map the given label IDs to the train IDs appropriate for training
         Use the label mapping provided in labels.py from the cityscapes scripts
         """
-        label = np.array(label, dtype=np.float32)
+        label = np.array(label, dtype=np.int32)
         if sys.version_info[0] < 3:
             for k, v in self.id2trainId.iteritems():
                 label[label == k] = v
@@ -79,12 +80,9 @@ class cityscapes:
         if label.ndim == 3:
             label = label[0]
         color = np.empty((label.shape[0], label.shape[1], 3))
-        if sys.version_info[0] < 3:
-            for k, v in self.trainId2color.iteritems():
-                color[label == k, :] = v
-        else:
-            for k, v in self.trainId2color.items():
-                color[label == k, :] = v
+        for k, v in self.trainId2color.items():
+            color[label == k, :] = v
+        color = color.astype(np.uint8)  # 确保 color 数组是 uint8 类型
         return color
 
     def make_boundaries(label, thickness=None):
