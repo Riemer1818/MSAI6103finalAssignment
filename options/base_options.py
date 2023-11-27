@@ -58,6 +58,9 @@ class BaseOptions():
         parser.add_argument('--use_wandb', action='store_true', help='if specified, then init wandb logging')
         parser.add_argument('--wandb_project_name', type=str, default='CycleGAN-and-pix2pix', help='specify wandb project name')
         self.initialized = True
+        # loss parameters
+        parser.add_argument('--loss', type=str, default='l1', help='l1 | vgg | resnet | mobilenet')
+
         return parser
 
     def gather_options(self):

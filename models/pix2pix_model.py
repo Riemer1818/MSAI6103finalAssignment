@@ -63,7 +63,13 @@ class Pix2PixModel(BaseModel):
         if self.isTrain:
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
+
+            # loss implementations
             self.criterionL1 = torch.nn.L1Loss()
+            self.criterionVGG = networks.VGGLoss() #TODO: 
+            self.criterionResnet = networks.ResNetLoss() #TODO:
+            self.criterionMobileNet = networks.MobileNetLoss() #TODO:
+
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -108,9 +114,30 @@ class Pix2PixModel(BaseModel):
         pred_fake = self.netD(fake_AB)
         self.loss_G_GAN = self.criterionGAN(pred_fake, True)
         # Second, G(A) = B
-        self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
+
+        self.VGGloss = 0
+        self.ResNetloss = 0
+        self.MobileNetloss = 0
+        self.VGGloss = 0
+
+        if self.opt.loss == 'l1':
+            self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
+            # print('Using L1 loss')
+        elif self.opt.loss == 'vgg':
+            self.loss_G_L1 = self.criterionVGG(self.fake_B, self.real_B) * self.opt.lambda_L1
+            # print('Using VGG loss')
+        elif self.opt.loss == 'resnet':
+            self.loss_G_L1 = self.criterionResnet(self.fake_B, self.real_B) * self.opt.lambda_L1
+            # print('Using ResNet loss')
+        elif self.opt.loss == 'mobilenet':
+            self.loss_G_L1 = self.criterionMobileNet(self.fake_B, self.real_B) * self.opt.lambda_L1
+            # print('Using MobileNet loss')
+        else:
+            raise NotImplementedError('Loss type [%s] is not implemented!' % self.opt.loss)
+
+        
         # combine loss and calculate gradients
-        self.loss_G = self.loss_G_GAN + self.loss_G_L1
+        self.loss_G = self.loss_G_GAN + self.loss_G_L1 
         self.loss_G.backward()
 
     def optimize_parameters(self):

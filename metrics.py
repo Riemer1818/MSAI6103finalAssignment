@@ -12,7 +12,7 @@ import cv2
 
 # Learned perceptual image patch similarity
 lpipsSqueeze= LearnedPerceptualImagePatchSimilarity(net_type='squeeze')
-lpipsAlex = LearnedPerceptualImagePatchSimilarity(net_type='alex')
+lpipsAlex = LearnedPerceptualImagePatchSimilarity(net_type='alex') #aAlexNet
 lpipsVGG = LearnedPerceptualImagePatchSimilarity(net_type='vgg') # what vgg version are we using here?
 
 # Peak-signal-to-noise-ratio
